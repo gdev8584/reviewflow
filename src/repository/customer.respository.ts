@@ -8,10 +8,15 @@ import type {
 export class CustomerRepository {
   private readonly customers = new Map<string, Customer>();
 
-  list(): Customer[] {
-    return [...this.customers.values()].sort((a, b) =>
+  list(limit: number, offset: number): { customers: Customer[]; total: number } {
+    const customers = [...this.customers.values()].sort((a, b) =>
       a.createdAt.localeCompare(b.createdAt)
     );
+
+    return {
+      customers: customers.slice(offset, offset + limit),
+      total: customers.length
+    };
   }
 
   findById(id: string): Customer | undefined {

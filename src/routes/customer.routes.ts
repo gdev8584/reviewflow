@@ -1,14 +1,33 @@
 import { Router } from "express";
 import { CustomerError, CustomerService } from "../services/customerService.service";
 import { CustomerRepository } from "../repository/customer.respository";
-import { createCustomerSchema, updateCustomerSchema } from "../schemas/customer.schema";
+import {
+  createCustomerSchema,
+  customerListQuerySchema,
+  updateCustomerSchema
+} from "../schemas/customer.schema";
 import type { UpdateCustomerInput } from "../utils/customer.types";
 
 export const customerRouter = Router();
 const service = new CustomerService(new CustomerRepository());
 
-customerRouter.get("/", (_req, res) => {
-  res.status(200).json({ data: service.listCustomers() });
+customerRouter.get("/", (req, res, next) => {
+  try {
+    const { limit, offset } = customerListQuerySchema.parse(req.query);
+    const result = service.listCustomers(limit, offset);
+
+    res.status(200).json({
+      data: result.customers,
+      pagination: {
+        limit,
+        offset,
+        total: result.total,
+        hasMore: offset + result.customers.length < result.total
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 customerRouter.get("/:id", (req, res, next) => {
