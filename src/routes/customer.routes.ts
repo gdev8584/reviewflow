@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { CustomerError, CustomerService } from "../services/customerService.service";
-import { CustomerRepository } from "../repository/customer.respository";
-import { createCustomerSchema, updateCustomerSchema } from "../schemas/customer.schema";
-import type { UpdateCustomerInput } from "../utils/customer.types";
+import { CustomerError, CustomerService } from "../services/customerService.service.js";
+import { CustomerRepository } from "../repository/customer.respository.js";
+import { createCustomerSchema, updateCustomerSchema } from "../schemas/customer.schema.js";
+import type { UpdateCustomerInput } from "../utils/customer.types.js";
 
 export const customerRouter = Router();
 const service = new CustomerService(new CustomerRepository());
@@ -31,7 +31,7 @@ customerRouter.post("/", (req, res, next) => {
 
 customerRouter.patch("/:id", (req, res, next) => {
   try {
-    const input: any = updateCustomerSchema.parse(req.body);
+    const input: UpdateCustomerInput = updateCustomerSchema.parse(req.body);
     const customer = service.updateCustomer(req.params.id, input);
     res.status(200).json({ data: customer });
   } catch (error) {
