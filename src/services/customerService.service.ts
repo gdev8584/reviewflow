@@ -14,8 +14,8 @@ export class CustomerError extends Error {
 export class CustomerService {
   constructor(private readonly repository: CustomerRepository) {}
 
-  listCustomers() {
-    return this.repository.list();
+  listCustomers(limit: number, offset: number) {
+    return this.repository.list(limit, offset);
   }
 
   getCustomer(id: string) {
