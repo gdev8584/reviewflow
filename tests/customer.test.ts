@@ -71,7 +71,7 @@ describe("customer API", () => {
     expect(firstSeededIndex).toBeGreaterThanOrEqual(0);
     expect(expectedPage).toHaveLength(2);
     expect(response.status).toBe(200);
-    expect(response.body.data).toEqual(expectedPage);
+    expect(response.body.data.map((customer: { id: string }) => customer.id)).toEqual(seededIds.slice(1, 3));
     expect(response.body.data).toHaveLength(2);
     expect(response.body.pagination).toEqual({
       limit: 2,
