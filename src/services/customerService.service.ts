@@ -1,5 +1,5 @@
-import { CustomerRepository } from "../repository/customer.respository";
-import type { CreateCustomerInput, UpdateCustomerInput } from "../utils/customer.types";
+import { CustomerRepository } from "../repository/customer.respository.js";
+import type { CreateCustomerInput, UpdateCustomerInput } from "../utils/customer.types.js";
 
 export class CustomerError extends Error {
   constructor(

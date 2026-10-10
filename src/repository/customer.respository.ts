@@ -3,7 +3,7 @@ import type {
   CreateCustomerInput,
   Customer,
   UpdateCustomerInput
-} from "../utils/customer.types";
+} from "../utils/customer.types.js";
 
 export class CustomerRepository {
   private readonly customers = new Map<string, Customer>();
@@ -45,7 +45,8 @@ export class CustomerRepository {
 
     const updated: Customer = {
       ...existing,
-      ...input,
+      name: input.name ?? existing.name,
+      email: input.email ?? existing.email,
       updatedAt: new Date().toISOString()
     };
 
