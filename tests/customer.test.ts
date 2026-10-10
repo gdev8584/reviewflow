@@ -52,7 +52,7 @@ describe("customer API", () => {
     it("rejects a whitespace-only customer name", async () => {
     const response = await request(app)
         .post("/api/customers")
-        .send({ name: "   ", email: "asha@example.com" });
+        .send({ name: "   ", email: "devanand@example.com" });
 
         expect(response.status).toBe(400);
         expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -61,7 +61,7 @@ describe("customer API", () => {
     it("rejects a missing email", async () => {
     const response = await request(app)
         .post("/api/customers")
-        .send({ name: "Asha Rao" });
+        .send({ name: "Devanand Giri" });
 
         expect(response.status).toBe(400);
         expect(response.body.error.code).toBe("VALIDATION_ERROR");
@@ -71,8 +71,8 @@ describe("customer API", () => {
     const response = await request(app)
         .post("/api/customers")
         .send({
-        name: "Asha Rao",
-        email: "asha@example.com",
+        name: "Devanand Giri",
+        email: "devanand@example.com",
         isAdmin: true,
         });
 
@@ -98,6 +98,31 @@ describe("customer API", () => {
 
         expect(response.status).toBe(400);
         expect(response.body.error.code).toBe("INVALID_JSON");
+    });
+
+    it("rejects unexpected fields when updating a customer", async () => {
+    const response = await request(app)
+        .patch(`/api/customers/${randomUUID()}`)
+        .send({
+        name: "Devanand Giri",
+        isAdmin: true,
+        });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    });
+        
+    it("rejects request bodies that exceed the size limit", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .set("Content-Type", "application/json")
+        .send(JSON.stringify({
+        name: "A".repeat(110_000),
+        email: "devanand@example.com",
+        }));
+
+        expect(response.status).toBe(413);
+        expect(response.body.error.code).toBe("PAYLOAD_TOO_LARGE");
     });
 
 });
