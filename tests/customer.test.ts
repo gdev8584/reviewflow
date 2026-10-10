@@ -125,4 +125,14 @@ describe("customer API", () => {
         expect(response.body.error.code).toBe("PAYLOAD_TOO_LARGE");
     });
 
+
+    it("returns an error response for an unsupported JSON charset", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .set("Content-Type", "application/json; charset=unsupported-charset")
+        .send('{"name":"Asha","email":"asha@example.com"}');
+
+        expect(response.status).toBe(500);
+        expect(response.body.error.code).toBe("INTERNAL_SERVER_ERROR");
+    });
 });

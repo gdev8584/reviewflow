@@ -68,6 +68,13 @@ const errorHandler: ErrorRequestHandler = (error: unknown,_req,res,_next,) => {
         });
         return;
     }
+    console.error("Unhandled request error", error);
+    res.status(500).json({
+        error: {
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An unexpected error occurred",
+        },
+    });
   }
 };
 
