@@ -47,4 +47,92 @@ describe("customer API", () => {
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("CUSTOMER_NOT_FOUND");
   });
+
+
+    it("rejects a whitespace-only customer name", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .send({ name: "   ", email: "devanand@example.com" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("rejects a missing email", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .send({ name: "Devanand Giri" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("rejects unexpected fields", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .send({
+        name: "Devanand Giri",
+        email: "devanand@example.com",
+        isAdmin: true,
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("rejects an update with an empty name", async () => {
+    const response = await request(app)
+        .patch("/api/customers/some-id")
+        .send({ name: "   " });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+
+    it("returns 400 for malformed JSON", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .set("Content-Type", "application/json")
+        .send('{"name":');
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("INVALID_JSON");
+    });
+
+    it("rejects unexpected fields when updating a customer", async () => {
+    const response = await request(app)
+        .patch(`/api/customers/${randomUUID()}`)
+        .send({
+        name: "Devanand Giri",
+        isAdmin: true,
+        });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    });
+        
+    it("rejects request bodies that exceed the size limit", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .set("Content-Type", "application/json")
+        .send(JSON.stringify({
+        name: "A".repeat(110_000),
+        email: "devanand@example.com",
+        }));
+
+        expect(response.status).toBe(413);
+        expect(response.body.error.code).toBe("PAYLOAD_TOO_LARGE");
+    });
+
+
+    it("returns an error response for an unsupported JSON charset", async () => {
+    const response = await request(app)
+        .post("/api/customers")
+        .set("Content-Type", "application/json; charset=unsupported-charset")
+        .send('{"name":"Asha","email":"asha@example.com"}');
+
+        expect(response.status).toBe(500);
+        expect(response.body.error.code).toBe("INTERNAL_SERVER_ERROR");
+    });
 });
