@@ -118,4 +118,20 @@ describe("customer API", () => {
         expect(response.body.error.code).toBe("CUSTOMER_NOT_FOUND");
     });
 
+    it("preserves existing fields when updating only the name", async () => {
+        const email = `preserve-${randomUUID()}@example.com`;
+
+        const created = await request(app)
+            .post("/api/customers")
+            .send({ name: "Original Name", email });
+
+        const response = await request(app)
+            .patch(`/api/customers/${created.body.data.id}`)
+            .send({ name: "Updated Name" });
+
+        expect(response.status).toBe(200);
+        expect(response.body.data.name).toBe("Updated Name");
+        expect(response.body.data.email).toBe(email);
+    });
+
 });
