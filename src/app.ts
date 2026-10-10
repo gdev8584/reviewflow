@@ -28,7 +28,8 @@ app.use((_req, res) => {
 });
 
 // global error handler
-const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _next) => {
+
+const errorHandler: ErrorRequestHandler = (error: unknown,_req,res,_next,) => {
   if (error instanceof ZodError) {
     res.status(400).json({
       error: {
@@ -36,21 +37,38 @@ const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _next) => 
         message: "Request validation failed",
         details: error.issues.map((issue) => ({
           path: issue.path.join("."),
-          message: issue.message
-        }))
-      }
+          message: issue.message,
+        })),
+      },
     });
     return;
   }
 
-// Handle other types of errors (e.g., unexpected errors)
+  // Express body-parser errors for invalid JSON.
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "type" in error &&
+    error.type === "entity.parse.failed"
+  ) {
+    res.status(400).json({
+      error: {
+        code: "INVALID_JSON",
+        message: "Request body must contain valid JSON",
+      },
+    });
+    return;
+  }
+
   console.error("Unhandled request error", error);
+
   res.status(500).json({
     error: {
       code: "INTERNAL_SERVER_ERROR",
-      message: "An unexpected error occurred"
-    }
+      message: "An unexpected error occurred",
+    },
   });
 };
+
 
 app.use(errorHandler);
